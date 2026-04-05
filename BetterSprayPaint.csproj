@@ -1,0 +1,85 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<AssemblyName>BetterSprayPaint</AssemblyName>
+		<Product>BetterSprayPaint</Product>
+		<Version>1.1.1</Version>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<DebugType>portable</DebugType>
+		<NoWarn>$(NoWarn);CS0436</NoWarn>
+	</PropertyGroup>
+
+	<Target Name="NetcodePatch" AfterTargets="PostBuildEvent" Condition="'$(DisableNetcodePatch)' != 'true'">
+		<Exec Command="netcode-patch -uv 2022.3.62 -nv 1.12.0 -tv 1.0.0 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
+	</Target>
+
+	<PropertyGroup>
+		<_LcManagedInRepo>$(MSBuildThisFileDirectory)Managed</_LcManagedInRepo>
+		<_LcManagedLegacy>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\Lethal Company_Data\Managed\'))</_LcManagedLegacy>
+		<_LcManagedSteam>$([System.IO.Path]::GetFullPath('C:\Program Files (x86)\Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\'))</_LcManagedSteam>
+	</PropertyGroup>
+	<PropertyGroup>
+		<LethalCompanyManaged Condition="'$(LethalCompanyManaged)' == '' AND Exists('$(_LcManagedInRepo)\Assembly-CSharp.dll')">$(_LcManagedInRepo)</LethalCompanyManaged>
+		<LethalCompanyManaged Condition="'$(LethalCompanyManaged)' == '' AND Exists('$(_LcManagedLegacy)Assembly-CSharp.dll')">$(_LcManagedLegacy)</LethalCompanyManaged>
+		<LethalCompanyManaged Condition="'$(LethalCompanyManaged)' == '' AND Exists('$(_LcManagedSteam)Assembly-CSharp.dll')">$(_LcManagedSteam)</LethalCompanyManaged>
+		<LethalCompanyManaged Condition="'$(LethalCompanyManaged)' == ''">$(_LcManagedInRepo)</LethalCompanyManaged>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.Core" Version="5.*" />
+		<PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+		<PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="LethalCompanyInputUtils">
+			<HintPath>..\..\BepInEx\plugins\Rune580-LethalCompany_InputUtils\LethalCompanyInputUtils\LethalCompanyInputUtils.dll</HintPath>
+		</Reference>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>$(LethalCompanyManaged)\Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.RenderPipelines.HighDefinition.Runtime">
+			<HintPath>$(LethalCompanyManaged)\Unity.RenderPipelines.HighDefinition.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.Netcode.Runtime">
+			<HintPath>$(LethalCompanyManaged)\Unity.Netcode.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.TextMeshPro">
+			<HintPath>$(LethalCompanyManaged)\Unity.TextMeshPro.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.InputSystem">
+			<HintPath>$(LethalCompanyManaged)\Unity.InputSystem.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>$(LethalCompanyManaged)\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.AnimationModule">
+			<HintPath>$(LethalCompanyManaged)\UnityEngine.AnimationModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(LethalCompanyManaged)\UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.TextRenderingModule">
+			<HintPath>$(LethalCompanyManaged)\UnityEngine.TextRenderingModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>$(LethalCompanyManaged)\UnityEngine.UI.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UIModule">
+			<HintPath>$(LethalCompanyManaged)\UnityEngine.UIModule.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
+		<Publicize Include="Unity.Netcode.Runtime" />
+	</ItemGroup>
+	
+	<ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+	</ItemGroup>
+</Project>
